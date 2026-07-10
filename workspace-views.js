@@ -92,7 +92,7 @@ function renderLibrary(search=""){
  qa("[data-ask-document]").forEach(button=>button.addEventListener("click",()=>askAboutDocument(button.dataset.askDocument)));
 }
 function renderLibraryCard(documentRecord){
- const preview=cleanMarkdownText(documentRecord.chunks[0]||"No preview available.");const space=workspaceDocumentSpace(documentRecord);
+ const preview=cleanAnswerText(documentRecord.chunks[0]||"No preview available.");const space=workspaceDocumentSpace(documentRecord);
  return `<article class="library-card"><div class="library-card-top"><div class="library-card-icon">▤</div><span class="library-card-badge">${documentRecord.chunks.length} chunks</span></div><h3>${escapeWorkspaceHtml(documentRecord.name)}</h3><p>${escapeWorkspaceHtml(preview)}</p><div class="library-card-footer"><select aria-label="Move ${escapeWorkspaceHtml(documentRecord.name)} to space" data-document-space="${escapeWorkspaceHtml(documentRecord.id)}">${spaceOptions(space)}</select><button data-ask-document="${escapeWorkspaceHtml(documentRecord.id)}">Ask ↗</button></div></article>`;
 }
 function assignDocument(documentId,spaceId){

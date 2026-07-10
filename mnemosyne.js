@@ -46,9 +46,13 @@ function saveLocalDocument(documentRecord){
 function cleanMarkdownText(value){
  return String(value)
   .replace(/^\s*```.*$/gm,"")
+  .replace(/^\s*\d{1,4}\s+#{1,6}\s+(.+)$/gm,"$1\n")
   .replace(/^\s*#{1,6}\s+(.+)$/gm,"$1\n")
+  .replace(/(^|\s)#{1,6}\s+/g,"$1")
   .replace(/^\s*>\s?/gm,"")
   .replace(/^\s*[-*+]\s+/gm,"")
+  .replace(/^\s*[•●▪◦]\s*/gm,"")
+  .replace(/\s+[•●▪◦]\s*/g," ")
   .replace(/!\[([^\]]*)\]\([^)]*\)/g,"$1")
   .replace(/\[([^\]]+)\]\([^)]*\)/g,"$1")
   .replace(/(\*\*|__)(.*?)\1/g,"$2")
@@ -57,6 +61,10 @@ function cleanMarkdownText(value){
   .replace(/~~(.*?)~~/g,"$1")
   .replace(/\n{3,}/g,"\n\n")
   .trim();
+}
+
+function cleanAnswerText(value){
+ return cleanMarkdownText(value).replace(/\s+/g," ").replace(/\s+([.,;:!?])/g,"$1").trim();
 }
 
 function chunkText(text){
@@ -96,7 +104,7 @@ function composeAnswer(question,ranked){
  const evidence=ranked.filter(item=>item.score>=Math.max(.08,ranked[0].score*.28));
  const q=question.toLowerCase();
  const lead=q.includes("changed")||q.includes("change")?"Your notes show a clear shift in thinking. ":q.includes("next")||q.includes("focus")||q.includes("learn")?"The evidence points to a practical next step. ":"Across your notes, the strongest conclusion is this: ";
- const sentences=evidence.flatMap(item=>cleanMarkdownText(item.content).split(/(?<=[.!?])\s+/)).filter(sentence=>sentence.length>35).slice(0,4);
+ const sentences=evidence.flatMap(item=>cleanAnswerText(item.content).split(/(?<=[.!?])\s+/)).filter(sentence=>sentence.length>35).slice(0,4);
  return lead+sentences.join(" ")+(evidence.length>1?" Together, these sources suggest the pattern is consistent rather than a one-off observation.":"");
 }
 
