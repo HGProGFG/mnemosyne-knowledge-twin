@@ -43,8 +43,24 @@ function saveLocalDocument(documentRecord){
  return new Promise((resolve,reject)=>{const request=database.transaction("documents","readwrite").objectStore("documents").put(documentRecord);request.onsuccess=()=>resolve();request.onerror=()=>reject(request.error)});
 }
 
+function cleanMarkdownText(value){
+ return String(value)
+  .replace(/^\s*```.*$/gm,"")
+  .replace(/^\s*#{1,6}\s+(.+)$/gm,"$1\n")
+  .replace(/^\s*>\s?/gm,"")
+  .replace(/^\s*[-*+]\s+/gm,"")
+  .replace(/!\[([^\]]*)\]\([^)]*\)/g,"$1")
+  .replace(/\[([^\]]+)\]\([^)]*\)/g,"$1")
+  .replace(/(\*\*|__)(.*?)\1/g,"$2")
+  .replace(/(\*|_)(.*?)\1/g,"$2")
+  .replace(/`([^`]+)`/g,"$1")
+  .replace(/~~(.*?)~~/g,"$1")
+  .replace(/\n{3,}/g,"\n\n")
+  .trim();
+}
+
 function chunkText(text){
- const cleaned=text.replace(/\r/g,"").replace(/[ \t]+/g," ").trim();
+ const cleaned=cleanMarkdownText(text).replace(/\r/g,"").replace(/[ \t]+/g," ").trim();
  if(!cleaned)return[];
  const parts=cleaned.split(/\n{2,}|(?<=[.!?])\s+(?=[A-Z0-9#])/).map(part=>part.trim()).filter(Boolean);
  const chunks=[];let current="";
@@ -80,7 +96,7 @@ function composeAnswer(question,ranked){
  const evidence=ranked.filter(item=>item.score>=Math.max(.08,ranked[0].score*.28));
  const q=question.toLowerCase();
  const lead=q.includes("changed")||q.includes("change")?"Your notes show a clear shift in thinking. ":q.includes("next")||q.includes("focus")||q.includes("learn")?"The evidence points to a practical next step. ":"Across your notes, the strongest conclusion is this: ";
- const sentences=evidence.flatMap(item=>item.content.split(/(?<=[.!?])\s+/)).filter(sentence=>sentence.length>35).slice(0,4);
+ const sentences=evidence.flatMap(item=>cleanMarkdownText(item.content).split(/(?<=[.!?])\s+/)).filter(sentence=>sentence.length>35).slice(0,4);
  return lead+sentences.join(" ")+(evidence.length>1?" Together, these sources suggest the pattern is consistent rather than a one-off observation.":"");
 }
 
