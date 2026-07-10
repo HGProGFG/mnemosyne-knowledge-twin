@@ -11,7 +11,9 @@
   <link rel="icon" href="./favicon.svg">
   <style>@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}</style>
   <link rel="stylesheet" href="./mnemosyne.css">
+  <link rel="stylesheet" href="./workspace-views.css">
   <script src="./mnemosyne.js" defer></script>
+  <script src="./workspace-views.js" defer></script>
 </head>
 <body>
   <main class="app-shell">
@@ -23,17 +25,19 @@
       </div>
 
       <nav class="primary-nav" aria-label="Primary navigation">
-        <button class="nav-item active"><span class="nav-icon">⌁</span><span>Ask</span><kbd>⌘ K</kbd></button>
-        <button class="nav-item"><span class="nav-icon">▱</span><span>Library</span><small id="nav-doc-count">3</small></button>
-        <button class="nav-item"><span class="nav-icon">⌘</span><span>Knowledge graph</span></button>
-        <button class="nav-item"><span class="nav-icon">◷</span><span>Timeline</span></button>
+        <button class="nav-item active" data-view="ask"><span class="nav-icon">⌁</span><span>Ask</span><kbd>⌘ K</kbd></button>
+        <button class="nav-item" data-view="library"><span class="nav-icon">▱</span><span>Library</span><small id="nav-doc-count">3</small></button>
+        <button class="nav-item" data-view="graph"><span class="nav-icon">⌘</span><span>Knowledge graph</span></button>
+        <button class="nav-item" data-view="timeline"><span class="nav-icon">◷</span><span>Timeline</span></button>
       </nav>
 
       <section class="sidebar-section">
-        <div class="section-label"><span>Spaces</span><button aria-label="Add space">＋</button></div>
-        <button class="space-item"><i class="space-dot lime"></i>Personal OS<span>12</span></button>
-        <button class="space-item"><i class="space-dot violet"></i>ML research<span>7</span></button>
-        <button class="space-item"><i class="space-dot coral"></i>Work notes<span>4</span></button>
+        <div class="section-label"><span>Spaces</span><button id="add-space" aria-label="Add space">＋</button></div>
+        <div id="space-list">
+          <button class="space-item active" data-space="personal-os"><i class="space-dot lime"></i><span class="space-name">Personal OS</span><span class="space-count">12</span></button>
+          <button class="space-item" data-space="ml-research"><i class="space-dot violet"></i><span class="space-name">ML research</span><span class="space-count">7</span></button>
+          <button class="space-item" data-space="work-notes"><i class="space-dot coral"></i><span class="space-name">Work notes</span><span class="space-count">4</span></button>
+        </div>
       </section>
 
       <div class="sync-card">
@@ -55,7 +59,7 @@
       <header class="topbar">
         <div class="topbar-left">
           <button class="menu-button" id="open-nav" aria-label="Open navigation">☰</button>
-          <div><span class="eyebrow">PERSONAL OS</span><h1>Ask your knowledge</h1></div>
+          <div><span class="eyebrow" id="workspace-eyebrow">PERSONAL OS</span><h1 id="workspace-title">Ask your knowledge</h1></div>
         </div>
         <div class="topbar-actions">
           <button class="privacy-badge"><i></i>On-device · Private</button>
@@ -97,11 +101,13 @@
             <button class="new-question" id="new-question">＋ Start a new question</button>
           </div>
 
+          <section class="feature-view hidden" id="feature-view" aria-live="polite"></section>
+
           <form class="composer" id="ask-form">
             <div class="composer-inner">
               <textarea id="question-input" placeholder="Ask anything about your knowledge…" aria-label="Ask your knowledge" rows="1"></textarea>
               <div class="composer-bottom">
-                <button type="button" class="scope-button">▱ All knowledge⌄</button>
+                <button type="button" class="scope-button" id="scope-button">▱ Personal OS</button>
                 <div><span>↵ to ask</span><button class="send-button" id="send-button" type="submit" disabled aria-label="Send question">↑</button></div>
               </div>
             </div>
@@ -121,7 +127,7 @@
           </section>
 
           <section class="context-section graph-section">
-            <div class="context-section-title"><h4>Connected ideas</h4><button>Explore graph</button></div>
+            <div class="context-section-title"><h4>Connected ideas</h4><button id="explore-graph">Explore graph</button></div>
             <div class="mini-graph" aria-label="Knowledge graph preview">
               <i class="graph-line line-a"></i><i class="graph-line line-b"></i><i class="graph-line line-c"></i><i class="graph-line line-d"></i>
               <div class="graph-node node-main">✦ <span>RAG</span></div>
@@ -152,6 +158,20 @@
       <p class="upload-error hidden" id="upload-error"></p>
       <div class="privacy-note">✓ Stored privately in this browser</div>
     </section>
+  </div>
+
+  <div class="modal-backdrop hidden" id="space-modal">
+    <form class="upload-modal space-modal" id="space-form" role="dialog" aria-modal="true" aria-labelledby="space-title">
+      <button class="modal-close" id="close-space" type="button" aria-label="Close space creator">×</button>
+      <div class="modal-icon">＋</div>
+      <span class="eyebrow">ORGANIZE YOUR MEMORY</span>
+      <h2 id="space-title">Create a space</h2>
+      <p>Group related documents into a focused context. Spaces are saved only in this browser.</p>
+      <label class="space-field"><span>Space name</span><input id="space-name-input" maxlength="32" placeholder="e.g. Thesis research" required></label>
+      <fieldset class="color-picker"><legend>Color</legend><label><input type="radio" name="space-color" value="lime" checked><span class="color-swatch lime"></span></label><label><input type="radio" name="space-color" value="violet"><span class="color-swatch violet"></span></label><label><input type="radio" name="space-color" value="coral"><span class="color-swatch coral"></span></label></fieldset>
+      <button class="create-space-button" type="submit">Create space</button>
+      <p class="upload-error hidden" id="space-error"></p>
+    </form>
   </div>
 
   <div class="toast hidden" id="toast"><span>✓</span><p></p></div>
