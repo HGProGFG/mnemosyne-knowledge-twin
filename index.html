@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101413">
+  <title>Mnemosyne — Your Personal Knowledge Twin</title>
+  <meta name="description" content="Ask your documents, trace changing ideas, and make evidence-backed decisions.">
+  <meta property="og:title" content="Mnemosyne — Your Personal Knowledge Twin">
+  <meta property="og:description" content="Your knowledge. Clear decisions.">
+  <meta property="og:image" content="/og.png">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/mnemosyne.css">
+  <script src="/mnemosyne.js" defer></script>
+</head>
+<body>
+  <main class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-row">
+        <div class="brand-mark">✦</div>
+        <span class="brand-name">Mnemosyne</span>
+        <button class="icon-button mobile-close" id="close-nav" aria-label="Close navigation">×</button>
+      </div>
+
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <button class="nav-item active"><span class="nav-icon">⌁</span><span>Ask</span><kbd>⌘ K</kbd></button>
+        <button class="nav-item"><span class="nav-icon">▱</span><span>Library</span><small id="nav-doc-count">3</small></button>
+        <button class="nav-item"><span class="nav-icon">⌘</span><span>Knowledge graph</span></button>
+        <button class="nav-item"><span class="nav-icon">◷</span><span>Timeline</span></button>
+      </nav>
+
+      <section class="sidebar-section">
+        <div class="section-label"><span>Spaces</span><button aria-label="Add space">＋</button></div>
+        <button class="space-item"><i class="space-dot lime"></i>Personal OS<span>12</span></button>
+        <button class="space-item"><i class="space-dot violet"></i>ML research<span>7</span></button>
+        <button class="space-item"><i class="space-dot coral"></i>Work notes<span>4</span></button>
+      </section>
+
+      <div class="sync-card">
+        <div class="sync-status"><i class="pulse-dot"></i>Local knowledge ready</div>
+        <p><span id="chunk-count">12</span> evidence chunks on this device</p>
+        <div class="progress-track"><span></span></div>
+      </div>
+
+      <div class="profile-row">
+        <div class="avatar">MH</div>
+        <div><strong>Minh Hoang</strong><span>Local-first workspace</span></div>
+        <span class="profile-more">•••</span>
+      </div>
+    </aside>
+
+    <button class="nav-scrim" id="nav-scrim" aria-label="Close navigation"></button>
+
+    <section class="workspace">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-button" id="open-nav" aria-label="Open navigation">☰</button>
+          <div><span class="eyebrow">PERSONAL OS</span><h1>Ask your knowledge</h1></div>
+        </div>
+        <div class="topbar-actions">
+          <button class="privacy-badge"><i></i>On-device · Private</button>
+          <button class="upload-button" id="open-upload"><span>＋</span>Add knowledge</button>
+        </div>
+      </header>
+
+      <div class="workspace-grid">
+        <section class="conversation-pane">
+          <div class="empty-state" id="empty-state">
+            <div class="orb" aria-hidden="true"><span class="orb-ring ring-one"></span><span class="orb-ring ring-two"></span><b>✦</b></div>
+            <span class="status-pill"><i></i>Evidence-aware local retrieval</span>
+            <h2>Turn scattered notes into<br><em>clear decisions.</em></h2>
+            <p>Ask across your documents, learning history, and past decisions. Every claim stays connected to its source—and your files stay on your device.</p>
+            <div class="suggestion-grid">
+              <button data-question="How has my view on microservices changed?"><span>01</span><strong>How has my view on microservices changed?</strong><i>↗</i></button>
+              <button data-question="What should I focus on learning next?"><span>02</span><strong>What should I focus on learning next?</strong><i>↗</i></button>
+              <button data-question="Summarize my retrieval architecture decisions."><span>03</span><strong>Summarize my retrieval architecture decisions.</strong><i>↗</i></button>
+            </div>
+          </div>
+
+          <div class="answer-view hidden" id="answer-view">
+            <div class="question-bubble"><span>You asked</span><h2 id="asked-question"></h2></div>
+            <div class="thinking-card hidden" id="thinking-card">
+              <div class="thinking-icon">⌁</div>
+              <div><strong>Tracing your knowledge…</strong><p>Retrieving and ranking evidence</p></div>
+              <div class="thinking-bars"><i></i><i></i><i></i></div>
+            </div>
+            <article class="answer-card hidden" id="answer-card">
+              <div class="answer-header">
+                <div class="answer-icon">✦</div>
+                <div class="answer-identity"><span>Mnemosyne</span><small id="answer-meta"></small></div>
+                <div class="confidence" id="confidence"><i></i><span></span></div>
+              </div>
+              <p class="answer-copy" id="answer-copy"></p>
+              <div class="inline-sources" id="inline-sources"></div>
+              <div class="answer-footer"><button data-feedback="helpful">Helpful</button><button data-feedback="needs-work">Needs work</button><span>Grounded only in your library</span></div>
+            </article>
+            <button class="new-question" id="new-question">＋ Start a new question</button>
+          </div>
+
+          <form class="composer" id="ask-form">
+            <div class="composer-inner">
+              <textarea id="question-input" placeholder="Ask anything about your knowledge…" aria-label="Ask your knowledge" rows="1"></textarea>
+              <div class="composer-bottom">
+                <button type="button" class="scope-button">▱ All knowledge⌄</button>
+                <div><span>↵ to ask</span><button class="send-button" id="send-button" type="submit" disabled aria-label="Send question">↑</button></div>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="context-pane">
+          <div class="context-heading"><div><span class="eyebrow">LIVE CONTEXT</span><h3>Your knowledge pulse</h3></div><button>•••</button></div>
+          <div class="stat-grid">
+            <div><span>Documents</span><strong id="document-count">3</strong><small><i>↗</i> Indexed locally</small></div>
+            <div><span>Indexed words</span><strong id="word-count">1.3k</strong><small>Across <span id="stat-chunks">12</span> chunks</small></div>
+          </div>
+
+          <section class="context-section">
+            <div class="context-section-title"><h4>Recently learned</h4><button id="view-library">View all</button></div>
+            <div class="document-list" id="document-list"></div>
+          </section>
+
+          <section class="context-section graph-section">
+            <div class="context-section-title"><h4>Connected ideas</h4><button>Explore graph</button></div>
+            <div class="mini-graph" aria-label="Knowledge graph preview">
+              <i class="graph-line line-a"></i><i class="graph-line line-b"></i><i class="graph-line line-c"></i><i class="graph-line line-d"></i>
+              <div class="graph-node node-main">✦ <span>RAG</span></div>
+              <div class="graph-node node-one">Retrieval</div><div class="graph-node node-two">Evaluation</div>
+              <div class="graph-node node-three">Citations</div><div class="graph-node node-four">Learning</div>
+            </div>
+          </section>
+
+          <div class="insight-card">
+            <div><span>⌁</span><small>Pattern detected</small></div>
+            <p>You mention <strong>retrieval quality</strong> more often than model size.</p>
+            <button data-question="What patterns appear in my notes?">See the evidence ↗</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop hidden" id="upload-modal">
+    <section class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-title">
+      <button class="modal-close" id="close-upload" aria-label="Close upload">×</button>
+      <div class="modal-icon">▱</div>
+      <span class="eyebrow">EXPAND YOUR MEMORY</span>
+      <h2 id="upload-title">Add to your knowledge</h2>
+      <p>Upload a text or Markdown file. Mnemosyne will split, index, and connect it locally—nothing is sent to a server.</p>
+      <button class="drop-zone" id="choose-file"><span>⇧</span><strong>Choose a document</strong><small>.txt or .md · up to 2 MB</small></button>
+      <input class="sr-only" id="file-input" type="file" accept=".txt,.md,text/plain,text/markdown">
+      <p class="upload-error hidden" id="upload-error"></p>
+      <div class="privacy-note">✓ Stored privately in this browser</div>
+    </section>
+  </div>
+
+  <div class="toast hidden" id="toast"><span>✓</span><p></p></div>
+</body>
+</html>
